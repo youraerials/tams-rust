@@ -1,0 +1,6 @@
+/target
+/media_storage
+/data
+/temp_uploads
+
+.DS_Store

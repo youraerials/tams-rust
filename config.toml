@@ -1,0 +1,57 @@
+[server]
+host = "127.0.0.1"
+port = 8080
+workers = 4  # Number of worker threads
+
+[database]
+url = "sqlite:./data/tams.db"
+max_connections = 10
+connection_timeout_seconds = 30
+
+[media_storage]
+# Local directory where media files will be stored
+base_path = "./media_storage"
+# Maximum file size in bytes (100MB)
+max_file_size = 104857600
+# Temporary upload directory
+temp_path = "./temp_uploads"
+
+[service]
+# Service information
+name = "TAMS Rust Implementation"
+description = "Time-addressable Media Store API server in Rust"
+version = "6.0"
+# Media store type - for local filesystem implementation
+media_store_type = "http_object_store"
+# Public URL base for accessing media files
+public_url_base = "http://localhost:8080/media"
+
+[auth]
+# Authentication settings
+require_auth = false
+# JWT secret for bearer token validation (generate a secure random string)
+jwt_secret = "your-256-bit-secret-key-change-this-in-production"
+# Basic auth credentials (if enabled)
+basic_auth_username = "admin"
+basic_auth_password = "password"
+
+[cors]
+# CORS settings
+allowed_origins = ["*"]
+allowed_methods = ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"]
+allowed_headers = ["*"]
+
+[logging]
+level = "info"
+# Log format: "compact", "pretty", or "json"  
+format = "compact"
+
+[pagination]
+# Default pagination limits
+default_limit = 50
+max_limit = 1000
+
+[cleanup]
+# Cleanup settings for temporary files and orphaned objects
+temp_file_retention_hours = 24
+orphaned_object_retention_days = 7 

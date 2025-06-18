@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE sources \n            SET format = ?2, label = ?3, description = ?4, tags = ?5, updated_at = ?6\n            WHERE id = ?1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "cd028914cb3ccf47dc3328b7a21ba2a1b96675555131387c23e3e4e7b9655617"
+}

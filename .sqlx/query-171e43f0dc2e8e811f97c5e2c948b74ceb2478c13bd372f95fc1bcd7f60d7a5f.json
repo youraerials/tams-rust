@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO deletion_requests (id, flow_id, timerange, status, progress, created_at, updated_at)\n            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "171e43f0dc2e8e811f97c5e2c948b74ceb2478c13bd372f95fc1bcd7f60d7a5f"
+}

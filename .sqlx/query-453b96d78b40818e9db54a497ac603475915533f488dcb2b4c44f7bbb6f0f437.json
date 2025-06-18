@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM flow_segments WHERE flow_id = ?1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "453b96d78b40818e9db54a497ac603475915533f488dcb2b4c44f7bbb6f0f437"
+}

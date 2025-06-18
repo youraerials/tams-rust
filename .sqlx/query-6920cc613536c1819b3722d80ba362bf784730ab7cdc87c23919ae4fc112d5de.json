@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO flow_segments (\n                flow_id, object_id, timerange, ts_offset, sample_offset,\n                sample_count, key_frame_count, get_urls, created_at\n            )\n            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 9
+    },
+    "nullable": []
+  },
+  "hash": "6920cc613536c1819b3722d80ba362bf784730ab7cdc87c23919ae4fc112d5de"
+}

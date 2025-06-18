@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM webhooks WHERE events LIKE ?1",
+  "describe": {
+    "columns": [
+      {
+        "name": "url",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "api_key_name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "api_key_value",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "events",
+        "ordinal": 3,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "3cedd6d6e7464f8e805aaf02d15e0450ef0b49feed879534d25f88e1ea04fac9"
+}

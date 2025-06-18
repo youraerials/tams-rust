@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO flows (\n                id, source_id, format, label, description, tags, read_only,\n                max_bit_rate, avg_bit_rate, container, codec, frame_width,\n                frame_height, sample_rate, channels, flow_collection,\n                available_timerange, created_at, updated_at\n            )\n            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 19
+    },
+    "nullable": []
+  },
+  "hash": "6a8886ca1ac6d758fa648d75ca8395cdb0c532960fac6a7944b9e3db530de10a"
+}

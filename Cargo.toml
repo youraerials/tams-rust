@@ -1,0 +1,76 @@
+[package]
+name = "tams-rust"
+version = "0.1.0"
+edition = "2021"
+authors = ["TAMS Rust Implementation"]
+description = "Time-addressable Media Store (TAMS) API server implementation in Rust"
+license = "Apache-2.0"
+
+[dependencies]
+# Web framework
+axum = { version = "0.7", features = ["multipart", "ws"] }
+tokio = { version = "1.0", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "compression-gzip"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "uuid", "chrono", "json"] }
+
+# UUID handling
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Configuration
+config = "0.14"
+toml = "0.8"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# HTTP client (for external requests)
+reqwest = { version = "0.11", features = ["json", "multipart"] }
+
+# File system utilities
+tokio-util = { version = "0.7", features = ["io"] }
+futures-util = "0.3"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Validation and regex
+validator = { version = "0.18", features = ["derive"] }
+regex = "1.10"
+
+# Async utilities
+async-trait = "0.1"
+
+# Path utilities
+path-clean = "1.0"
+
+# MIME type detection
+mime_guess = "2.0"
+
+# Pagination and query parameters
+url = "2.5"
+
+# Authentication
+jsonwebtoken = "9.0"
+base64 = "0.22"
+
+# CORS and security
+headers = "0.3"
+
+# Random for generating object IDs
+rand = "0.8"
+
+[dev-dependencies]
+tempfile = "3.8"
+assert_matches = "1.5" 

@@ -1,0 +1,84 @@
+#
+# Copyright 2023 British Broadcasting Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+openapi: 3.1.0
+info:
+  title: Time-addressable Media Store
+  description: |
+    The Time-addressable Media Store (TAMS) is used for storing segmented media flows.
+    The TAMS consists of a media store for the media flow segment objects and a service providing
+    a database index of the flow segments. This document is a specification of the service API.
+
+    See the [bbc/tams](https://github.com/bbc/tams) repository for more background on TAMS.
+
+    **Note**: the examples provided in this specification are for a system which uses a media
+    store that provides HTTP URLs for uploading and downloading media objects in buckets. This
+    could for example be implemented using an AWS S3 compatible store using presigned URLs or by
+    a simple file system storage with an HTTP frontend. Clients should parse the /service endpoint
+    and handle the media store type in use appropriately.
+  version: "6.0"
+  contact:
+    name: "BBC R&D - Cloud-Fit Production Team"
+    email: "cloudfit-opensource@rd.bbc.co.uk"
+    url: https://github.com/bbc/tams
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: "http://localhost:4010"
+    description: Local mock of API
+  - url: "https://example.com/tams/{version}"
+    description: Example TAMS service
+    variables:
+      version:
+        description: API version
+        default: v6.0
+security:
+  - bearer_token_auth: []
+  - url_token_auth: []
+  - basic_auth: []
+components:
+  schemas:
+    uuid:
+      title: UUID
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      type: string
+    contentformat:
+      title: Content Format
+      description: Identifies the content format for a flow or source using a URN string.
+      enum:
+        - urn:x-nmos:format:video
+        - urn:x-tam:format:image
+        - urn:x-nmos:format:audio
+        - urn:x-nmos:format:data
+        - urn:x-nmos:format:multi
+      type: string
+    mimetype:
+      title: MIME Type
+      pattern: .*/.*
+      description: MIME Type string.
+      type: string
+  securitySchemes:
+    basic_auth:
+      type: http
+      scheme: basic
+    bearer_token_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    url_token_auth:
+      type: apiKey
+      name: access_token
+      in: query

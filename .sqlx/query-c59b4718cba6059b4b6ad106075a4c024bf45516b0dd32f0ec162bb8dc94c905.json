@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE flows SET\n                source_id = ?2, format = ?3, label = ?4, description = ?5,\n                tags = ?6, read_only = ?7, max_bit_rate = ?8, avg_bit_rate = ?9,\n                container = ?10, codec = ?11, frame_width = ?12, frame_height = ?13,\n                sample_rate = ?14, channels = ?15, flow_collection = ?16,\n                available_timerange = ?17, updated_at = ?18\n            WHERE id = ?1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 18
+    },
+    "nullable": []
+  },
+  "hash": "c59b4718cba6059b4b6ad106075a4c024bf45516b0dd32f0ec162bb8dc94c905"
+}
