@@ -97,8 +97,8 @@ impl MediaStorage {
             fs::create_dir_all(parent).await?;
         }
 
-        // Generate a presigned PUT URL (for our local implementation, this is a special endpoint)
-        let put_url = format!("{}/objects/{}/upload", self.public_base_url, object_id);
+        // Generate a presigned PUT URL (for our local implementation, this points to our PUT endpoint)
+        let put_url = format!("{}/objects/{}", self.public_base_url.replace("/media", ""), object_id);
         
         // URL expires in 1 hour
         let expires_at = Utc::now() + Duration::hours(1);

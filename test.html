@@ -1112,7 +1112,7 @@
                 <input
                   type="text"
                   id="upload-url"
-                  placeholder="http://localhost:8080/upload/object-id"
+                  placeholder="http://127.0.0.1:8080/objects/object-id"
                 />
               </div>
               <div class="form-group">
@@ -1508,13 +1508,10 @@
             /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g,
             '<span class="json-key">$1</span>'
           )
-          .replace(/:\s*"([^"]*)"/g, ': <span class="json-string">"$1"</span>')
-          .replace(/:\s*(\d+)/g, ': <span class="json-number">$1</span>')
-          .replace(
-            /:\s*(true|false)/g,
-            ': <span class="json-boolean">$1</span>'
-          )
-          .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+          .replace(/:\s*"([^"]*)"/g, ':<span class="json-string">"$1"</span>')
+          .replace(/:\s*(\d+)/g, ':<span class="json-number">$1</span>')
+          .replace(/:\s*(true|false)/g, ':<span class="json-boolean">$1</span>')
+          .replace(/:\s*(null)/g, ':<span class="json-null">$1</span>');
       }
 
       // HTML escaping
@@ -1940,14 +1937,14 @@
         `;
 
         try {
-          const formData = new FormData();
-          formData.append("file", selectedFile);
-
-          const headers = getAuthHeaders();
+          const headers = {
+            "Content-Type": selectedFile.type || "application/octet-stream",
+            ...getAuthHeaders(),
+          };
 
           const response = await fetch(uploadUrl, {
-            method: "POST",
-            body: formData,
+            method: "PUT",
+            body: selectedFile,
             headers: headers,
           });
 
@@ -1966,7 +1963,7 @@
 
           responseArea.innerHTML = `
             <div class="response-header">
-              <strong>POST ${uploadUrl}</strong>
+              <strong>PUT ${uploadUrl}</strong>
               <span class="status-code ${statusClass}">${response.status} ${
             response.statusText
           }</span>

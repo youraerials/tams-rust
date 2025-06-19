@@ -226,33 +226,22 @@ pub async fn delete_flow_segments(
 
 // Storage endpoints
 pub async fn allocate_storage(
+    Path(_flow_id): Path<Uuid>,
+    Query(params): Query<HashMap<String, String>>,
     State(state): State<AppState>,
-    Json(request): Json<FlowStorageRequest>,
 ) -> Result<Json<FlowStorage>, TamsError> {
-    let mut objects = Vec::new();
+    // Parse limit from query parameters, default to 1
+    let limit = params.get("limit").and_then(|l| l.parse().ok()).unwrap_or(1);
     
-    if let Some(object_ids) = request.object_ids {
-        for object_id in object_ids {
-            let put_url = state.storage.get_upload_url(&object_id, None).await?;
-            objects.push(StorageObject {
-                object_id,
-                put_url,
-                put_headers: None,
-                expires_at: None,
-            });
-        }
-    } else if let Some(limit) = request.limit {
-        for _i in 0..limit {
-            let object_id = format!("object-{}", Uuid::new_v4());
-            let put_url = state.storage.get_upload_url(&object_id, None).await?;
-            objects.push(StorageObject {
-                object_id,
-                put_url,
-                put_headers: None,
-                expires_at: None,
-            });
-        }
-    }
+    // Parse object_ids from query parameters if provided
+    let object_ids = if let Some(object_ids_str) = params.get("object_ids") {
+        Some(object_ids_str.split(',').map(|s| s.to_string()).collect())
+    } else {
+        None
+    };
+    
+    // Use the storage allocate_storage method which creates proper StorageObjects
+    let objects = state.storage.allocate_storage(limit, object_ids).await?;
     
     Ok(Json(FlowStorage { objects }))
 }
@@ -264,6 +253,29 @@ pub async fn get_media_object(
 ) -> Result<Json<MediaObject>, TamsError> {
     let media_object = state.database.get_media_object_required(&object_id).await?;
     Ok(Json(media_object))
+}
+
+pub async fn put_media_object(
+    Path(object_id): Path<String>,
+    State(state): State<AppState>,
+    body: axum::body::Bytes,
+) -> Result<StatusCode, TamsError> {
+    // Store the uploaded data
+    state.storage.store_object(&object_id, body.to_vec()).await?;
+    
+    // Create or update media object record in database
+    let media_object = MediaObject {
+        object_id: object_id.clone(),
+        size_bytes: Some(body.len() as u64),
+        mime_type: None, // Could be inferred from content-type header
+        flow_references: Vec::new(),
+        created_at: chrono::Utc::now(),
+    };
+    
+    // Try to create the media object, ignore if it already exists
+    let _ = state.database.create_media_object(&media_object).await;
+    
+    Ok(StatusCode::CREATED)
 }
 
 pub async fn head_media_object(

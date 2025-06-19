@@ -132,6 +132,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Media objects endpoints
         .route("/objects/:object_id", 
             get(get_media_object)
+                .put(put_media_object)
         )
         
         // Webhook endpoints

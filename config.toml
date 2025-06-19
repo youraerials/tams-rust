@@ -24,7 +24,7 @@ version = "6.0"
 # Media store type - for local filesystem implementation
 media_store_type = "http_object_store"
 # Public URL base for accessing media files
-public_url_base = "http://localhost:8080/media"
+public_url_base = "http://127.0.0.1:8080"
 
 [auth]
 # Authentication settings, still need to implement this
