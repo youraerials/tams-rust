@@ -691,7 +691,10 @@
                 <span class="method get">GET</span>
                 <span class="endpoint-path">/</span>
               </div>
-              <button class="btn" onclick="makeRequest('GET', '/')">
+              <button
+                class="btn"
+                onclick="makeRequest('GET', '/', null, 'response-root')"
+              >
                 Get API Info
               </button>
               <div
@@ -706,7 +709,10 @@
                 <span class="method get">GET</span>
                 <span class="endpoint-path">/service</span>
               </div>
-              <button class="btn" onclick="makeRequest('GET', '/service')">
+              <button
+                class="btn"
+                onclick="makeRequest('GET', '/service', null, 'response-service')"
+              >
                 Get Service Info
               </button>
               <div
