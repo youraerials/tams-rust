@@ -206,7 +206,7 @@ pub async fn delete_flow_segments(
     Path(flow_id): Path<Uuid>,
     Query(params): Query<HashMap<String, String>>,
     State(state): State<AppState>,
-) -> Result<Json<Value>, TamsError> {
+) -> Result<StatusCode, TamsError> {
     let timerange = if let (Some(start), Some(end)) = (params.get("start"), params.get("end")) {
         Some(TimeRange {
             start: start.clone(),
@@ -221,7 +221,7 @@ pub async fn delete_flow_segments(
         state.database.delete_flow_segments_by_timerange(&flow_id, tr).await?;
     }
 
-    Ok(Json(json!({ "deleted": true })))
+    Ok(StatusCode::NO_CONTENT)
 }
 
 // Storage endpoints
