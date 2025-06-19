@@ -27,7 +27,7 @@ media_store_type = "http_object_store"
 public_url_base = "http://localhost:8080/media"
 
 [auth]
-# Authentication settings
+# Authentication settings, still need to implement this
 require_auth = false
 # JWT secret for bearer token validation (generate a secure random string)
 jwt_secret = "your-256-bit-secret-key-change-this-in-production"

@@ -196,6 +196,210 @@ pub struct WebhookRequest {
     pub events: Vec<String>,
 }
 
+// Request DTOs (Data Transfer Objects) for API endpoints
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateSourceRequest {
+    pub id: Uuid,
+    pub format: ContentFormat,
+    pub label: Option<String>,
+    pub description: Option<String>,
+    pub tags: HashMap<String, String>,
+}
+
+impl CreateSourceRequest {
+    pub fn into_source(self) -> Source {
+        let now = Utc::now();
+        Source {
+            id: self.id,
+            format: self.format,
+            label: self.label,
+            description: self.description,
+            tags: self.tags,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateFlowRequest {
+    pub id: Option<Uuid>,
+    pub source_id: Option<Uuid>,
+    pub format: Option<ContentFormat>,
+    pub label: Option<String>,
+    pub description: Option<String>,
+    pub tags: HashMap<String, String>,
+    pub read_only: Option<bool>,
+    pub max_bit_rate: Option<u64>,
+    pub avg_bit_rate: Option<u64>,
+    pub container: Option<String>,
+    pub codec: Option<String>,
+    pub frame_width: Option<u32>,
+    pub frame_height: Option<u32>,
+    pub sample_rate: Option<u32>,
+    pub channels: Option<u32>,
+    pub flow_collection: Option<FlowCollection>,
+    pub available_timerange: Option<TimeRange>,
+}
+
+impl CreateFlowRequest {
+    pub fn into_flow(self) -> Flow {
+        let now = Utc::now();
+        Flow {
+            id: self.id.unwrap_or_else(Uuid::new_v4),
+            source_id: self.source_id,
+            format: self.format.unwrap_or(ContentFormat::Data),
+            label: self.label,
+            description: self.description,
+            tags: self.tags,
+            read_only: self.read_only,
+            max_bit_rate: self.max_bit_rate,
+            avg_bit_rate: self.avg_bit_rate,
+            container: self.container,
+            codec: self.codec,
+            frame_width: self.frame_width,
+            frame_height: self.frame_height,
+            sample_rate: self.sample_rate,
+            channels: self.channels,
+            flow_collection: self.flow_collection,
+            available_timerange: self.available_timerange,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpdateSourceRequest {
+    pub format: Option<ContentFormat>,
+    pub label: Option<String>,
+    pub description: Option<String>,
+    pub tags: Option<HashMap<String, String>>,
+}
+
+impl UpdateSourceRequest {
+    pub fn apply_to_source(self, mut source: Source) -> Source {
+        if let Some(format) = self.format {
+            source.format = format;
+        }
+        if let Some(label) = self.label {
+            source.label = Some(label);
+        }
+        if let Some(description) = self.description {
+            source.description = Some(description);
+        }
+        if let Some(tags) = self.tags {
+            source.tags = tags;
+        }
+        source.updated_at = Utc::now();
+        source
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpdateFlowRequest {
+    pub source_id: Option<Uuid>,
+    pub format: Option<ContentFormat>,
+    pub label: Option<String>,
+    pub description: Option<String>,
+    pub tags: Option<HashMap<String, String>>,
+    pub read_only: Option<bool>,
+    pub max_bit_rate: Option<u64>,
+    pub avg_bit_rate: Option<u64>,
+    pub container: Option<String>,
+    pub codec: Option<String>,
+    pub frame_width: Option<u32>,
+    pub frame_height: Option<u32>,
+    pub sample_rate: Option<u32>,
+    pub channels: Option<u32>,
+    pub flow_collection: Option<FlowCollection>,
+    pub available_timerange: Option<TimeRange>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateSegmentRequest {
+    pub object_id: String,
+    pub timerange: TimeRange,
+    pub ts_offset: Option<String>,
+    pub sample_offset: Option<u64>,
+    pub sample_count: Option<u64>,
+    pub key_frame_count: Option<u32>,
+}
+
+impl CreateSegmentRequest {
+    pub fn into_segment(self, flow_id: Uuid) -> FlowSegment {
+        let now = Utc::now();
+        let timerange_str = format!("{}:{}", self.timerange.start, self.timerange.end);
+        
+        FlowSegment {
+            flow_id,
+            object_id: self.object_id,
+            timerange: timerange_str,
+            ts_offset: self.ts_offset,
+            sample_offset: self.sample_offset,
+            sample_count: self.sample_count,
+            key_frame_count: self.key_frame_count,
+            get_urls: HashMap::new(),
+            created_at: now,
+        }
+    }
+}
+
+impl UpdateFlowRequest {
+    pub fn apply_to_flow(self, mut flow: Flow) -> Flow {
+        if let Some(source_id) = self.source_id {
+            flow.source_id = Some(source_id);
+        }
+        if let Some(format) = self.format {
+            flow.format = format;
+        }
+        if let Some(label) = self.label {
+            flow.label = Some(label);
+        }
+        if let Some(description) = self.description {
+            flow.description = Some(description);
+        }
+        if let Some(tags) = self.tags {
+            flow.tags = tags;
+        }
+        if let Some(read_only) = self.read_only {
+            flow.read_only = Some(read_only);
+        }
+        if let Some(max_bit_rate) = self.max_bit_rate {
+            flow.max_bit_rate = Some(max_bit_rate);
+        }
+        if let Some(avg_bit_rate) = self.avg_bit_rate {
+            flow.avg_bit_rate = Some(avg_bit_rate);
+        }
+        if let Some(container) = self.container {
+            flow.container = Some(container);
+        }
+        if let Some(codec) = self.codec {
+            flow.codec = Some(codec);
+        }
+        if let Some(frame_width) = self.frame_width {
+            flow.frame_width = Some(frame_width);
+        }
+        if let Some(frame_height) = self.frame_height {
+            flow.frame_height = Some(frame_height);
+        }
+        if let Some(sample_rate) = self.sample_rate {
+            flow.sample_rate = Some(sample_rate);
+        }
+        if let Some(channels) = self.channels {
+            flow.channels = Some(channels);
+        }
+        if let Some(flow_collection) = self.flow_collection {
+            flow.flow_collection = Some(flow_collection);
+        }
+        if let Some(available_timerange) = self.available_timerange {
+            flow.available_timerange = Some(available_timerange);
+        }
+        flow.updated_at = Utc::now();
+        flow
+    }
+}
+
 // Pagination support
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PaginationParams {

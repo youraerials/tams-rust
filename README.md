@@ -6,6 +6,82 @@ A high-performance Time-addressable Media Store (TAMS) API server implementation
 
 This project implements the [TAMS API specification v6.0](https://github.com/bbc/tams) from the BBC, providing a REST API for managing time-addressable media content with support for sources, flows, segments, and webhook notifications.
 
+## Quick Start
+
+### 1. Initial Setup
+
+Run the setup script to create the database and prepare the environment:
+
+```bash
+./setup.sh
+```
+
+This script will:
+
+- Create necessary directories (`data/`, `media_storage/`, `temp_uploads/`)
+- Create the SQLite database with proper schema
+- Install `sqlx-cli` if not present
+- Set up environment variables and SQLx query cache
+- Prepare the project for compilation
+
+### 2. Start the Server
+
+Use the startup script for a reliable server start:
+
+```bash
+./start_server.sh
+```
+
+This script will:
+
+- Ensure all directories exist
+- Set the correct `DATABASE_URL` environment variable
+- Verify database connectivity and recreate if needed
+- Build and start the server with proper environment configuration
+
+### 3. Alternative Manual Start
+
+You can also run the server manually after setup:
+
+```bash
+# Basic start
+cargo run
+
+# With debug logging
+RUST_LOG=debug cargo run
+
+# With custom environment
+DATABASE_URL="sqlite:./data/tams.db" cargo run
+```
+
+## Testing the API
+
+### Test Endpoint
+
+The server provides a test endpoint at `http://localhost:8080/test` that serves a basic HTML page for API testing. You can:
+
+1. Open your browser to `http://localhost:8080/test`
+2. Use it as a starting point for building custom test interfaces
+3. Access the API documentation at `http://localhost:8080/`
+
+### Example API Calls
+
+```bash
+# Get API information
+curl http://localhost:8080/
+
+# Get service capabilities
+curl http://localhost:8080/service
+
+# List sources
+curl http://localhost:8080/sources
+
+# Create a new source
+curl -X POST http://localhost:8080/sources \
+  -H "Content-Type: application/json" \
+  -d '{"id":"test-source","format":"video","tags":{}}'
+```
+
 ## Features
 
 ### ✅ Implemented
@@ -37,6 +113,7 @@ The implementation provides all TAMS v6.0 REST endpoints:
 
 - `GET /` - Root endpoint with API information
 - `GET /service` - Service capabilities and information
+- `GET /test` - Test page for API interaction
 
 ### Sources Management
 
@@ -92,7 +169,7 @@ port = 8080
 workers = 4
 
 [database]
-url = "sqlite:./tams.db"
+url = "sqlite:./data/tams.db"
 max_connections = 10
 connection_timeout_seconds = 30
 
@@ -132,73 +209,73 @@ temp_file_retention_hours = 24
 orphaned_object_retention_days = 7
 ```
 
-## Building and Running
+## Prerequisites
 
-### Prerequisites
-
-- Rust 1.70+
-- SQLite 3.35+
-
-### Create the database
-
-```
-Create the data directory (matching your config.toml change)
-mkdir -p data
-
-# Create the database and tables
-sqlite3 data/tams.db < create_db.sql
-```
-
-### Build
-
-```bash
-cargo build --release
-```
-
-### Run
-
-```bash
-# With default config.toml
-cargo run
-
-# Or run the binary directly
-./target/release/tams-rust
-```
-
-### Development
-
-```bash
-# Run with debug logging
-RUST_LOG=debug cargo run
-
-# Run tests
-cargo test
-
-# Format code
-cargo fmt
-
-# Lint
-cargo clippy
-```
+- **Rust**: 1.70 or higher
+- **SQLite**: 3.35 or higher
+- **sqlx-cli**: Automatically installed by setup script
 
 ## Project Structure
 
 ```
-src/
-├── main.rs           # Application entry point and routing
-├── config.rs         # Configuration loading and structures
-├── models.rs         # TAMS data models and types
-├── database.rs       # Database operations and migrations
-├── storage.rs        # Media storage abstraction
-├── handlers.rs       # HTTP request handlers
-├── auth.rs           # Authentication middleware
-├── webhooks.rs       # Webhook notification system
-├── time_utils.rs     # Time parsing and validation utilities
-└── error.rs          # Error types and HTTP mapping
-
-config.toml           # Server configuration
-Cargo.toml           # Rust dependencies and metadata
+tams-rust/
+├── src/
+│   ├── main.rs           # Application entry point and routing
+│   ├── config.rs         # Configuration loading and structures
+│   ├── models.rs         # TAMS data models and types
+│   ├── database.rs       # Database operations and migrations
+│   ├── storage.rs        # Media storage abstraction
+│   ├── handlers.rs       # HTTP request handlers
+│   ├── auth.rs           # Authentication middleware
+│   ├── webhooks.rs       # Webhook notification system
+│   ├── time_utils.rs     # Time parsing and validation utilities
+│   └── error.rs          # Error types and HTTP mapping
+├── config.toml           # Server configuration
+├── setup.sh              # Initial setup and database creation
+├── start_server.sh       # Server startup script
+├── create_db.sql         # Database schema
+├── test.html             # Test page served at /test endpoint
+├── api-spec.yaml         # OpenAPI specification
+└── Cargo.toml            # Rust dependencies and metadata
 ```
+
+## Setup Script Details
+
+The `setup.sh` script performs the following operations:
+
+1. **Directory Creation**: Creates `data/`, `media_storage/`, and `temp_uploads/` directories
+2. **Database Setup**: Creates SQLite database from `create_db.sql` schema
+3. **Environment Configuration**: Sets up `.env` file with `DATABASE_URL`
+4. **Dependencies**: Installs `sqlx-cli` for database query preparation
+5. **Query Cache**: Prepares SQLx offline query cache for compilation
+
+**Usage:**
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+## Start Server Script Details
+
+The `start_server.sh` script ensures reliable server startup:
+
+1. **Environment Setup**: Sets absolute paths and environment variables
+2. **Database Verification**: Checks database existence and connectivity
+3. **Auto-Recovery**: Recreates database if corrupted or missing
+4. **Server Launch**: Builds and starts the server with proper configuration
+
+**Usage:**
+
+```bash
+chmod +x start_server.sh
+./start_server.sh
+```
+
+**Environment Variables:**
+
+- `DATABASE_URL`: Automatically set to absolute SQLite path
+- `RUST_LOG`: Optional logging level (defaults to "info")
 
 ## Data Models
 
@@ -248,18 +325,86 @@ curl -u admin:password http://localhost:8080/sources
 
 ## Storage
 
-Media files are stored in a local directory with a two-level structure for performance:
+Media files are stored in a local directory structure:
 
 ```
 media_storage/
-├── ab/
-│   └── ab123...def
-├── cd/
-│   └── cd456...789
+├── object-id-1
+├── object-id-2
 └── ...
 ```
 
-Upload URLs are presigned and expire after 1 hour by default.
+Upload URLs are generated for secure file transfers and expire after 1 hour by default.
+
+## Development
+
+### Build and Test
+
+```bash
+# Check compilation
+cargo check
+
+# Run tests
+cargo test
+
+# Format code
+cargo fmt
+
+# Run linter
+cargo clippy
+
+# Build release
+cargo build --release
+```
+
+### Logging
+
+Configure logging via environment or config:
+
+```bash
+# Debug logging
+RUST_LOG=debug cargo run
+
+# JSON format logging
+RUST_LOG=info cargo run
+# (Configure format in config.toml)
+```
+
+### Database Management
+
+```bash
+# Reset database
+rm -f data/tams.db
+./setup.sh
+
+# Query database directly
+sqlite3 data/tams.db "SELECT * FROM sources;"
+
+# Prepare SQLx queries after schema changes
+cargo sqlx prepare
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Compilation Errors**: Run `./setup.sh` to prepare SQLx queries
+2. **Database Errors**: Delete `data/tams.db` and re-run setup
+3. **Permission Issues**: Check file permissions on database and directories
+4. **Port Already in Use**: Change port in `config.toml` or stop conflicting services
+
+### Logs and Debugging
+
+```bash
+# Verbose logging
+RUST_LOG=debug ./start_server.sh
+
+# Check database
+sqlite3 data/tams.db ".tables"
+
+# Test API connectivity
+curl -v http://localhost:8080/
+```
 
 ## Performance
 
@@ -268,21 +413,6 @@ Upload URLs are presigned and expire after 1 hour by default.
 - **Streaming**: Large file operations use streaming where possible
 - **Memory Efficient**: Minimal allocations and zero-copy operations
 - **Concurrent**: Handles multiple requests concurrently
-
-## Logging
-
-Structured logging with multiple output formats:
-
-```bash
-# JSON format
-TAMS_LOG_FORMAT=json cargo run
-
-# Pretty format for development
-TAMS_LOG_FORMAT=pretty cargo run
-
-# Compact format (default)
-cargo run
-```
 
 ## Current Status
 
@@ -298,23 +428,16 @@ cargo run
 - Error handling
 - Time utilities
 - Logging setup
+- Setup and startup scripts
 
 ### Next Steps 🔧
 
-1. **Fix Compilation Issues**: Resolve remaining type mismatches and method signatures
-2. **Database Query Preparation**: Run `cargo sqlx prepare` for offline builds
-3. **Integration Testing**: Add end-to-end API tests
-4. **Media Upload/Download**: Implement actual file upload/download endpoints
-5. **Background Tasks**: Implement deletion request processing
-6. **Monitoring**: Add metrics and health checks
-7. **Docker**: Add Dockerfile and docker-compose
-
-### Known Issues
-
-- Some database method signatures need alignment with handlers
-- SQLx compile-time checks require database setup for offline builds
-- Media upload/download endpoints need implementation
-- Flow deletion background processing is TODO
+1. **Integration Testing**: Add end-to-end API tests
+2. **Enhanced Test Page**: Improve test.html with interactive API testing
+3. **Media Upload/Download**: Complete file upload/download endpoints
+4. **Background Tasks**: Implement deletion request processing
+5. **Monitoring**: Add metrics and health checks
+6. **Docker**: Add containerization support
 
 ## Contributing
 
@@ -332,6 +455,7 @@ Apache 2.0 License
 ## References
 
 - [TAMS API Specification](https://github.com/bbc/tams)
+- [OpenAPI Specification](./api-spec.yaml)
 - [BBC Technical Standards](https://www.bbc.co.uk/makerbox/)
 - [Rust Async Book](https://rust-lang.github.io/async-book/)
 - [Axum Documentation](https://docs.rs/axum/)

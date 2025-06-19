@@ -1,1 +1,2305 @@
- 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAMS API Testing Interface</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a1a 0%,
+          #2d2d2d 50%,
+          #1a1a1a 100%
+        );
+        color: #ffffff;
+        min-height: 100vh;
+        padding: 20px;
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: rgba(28, 28, 30, 0.95);
+        border-radius: 20px;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+          0 8px 16px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #007aff 0%, #0051d6 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+          circle at 30% 30%,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 50%
+        );
+        pointer-events: none;
+      }
+
+      .header h1 {
+        font-size: 2.8em;
+        font-weight: 700;
+        margin-bottom: 12px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+      }
+
+      .header p {
+        font-size: 1.2em;
+        opacity: 0.9;
+        font-weight: 500;
+        position: relative;
+        z-index: 1;
+      }
+
+      .content {
+        padding: 40px;
+        background: rgba(28, 28, 30, 0.8);
+      }
+
+      .auth-section {
+        background: rgba(44, 44, 46, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 24px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .auth-section h3 {
+        margin-bottom: 18px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 1.1em;
+      }
+
+      .auth-controls {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .tabs {
+        display: flex;
+        background: rgba(44, 44, 46, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .tab {
+        flex: 1;
+        padding: 16px 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        font-family: inherit;
+        position: relative;
+      }
+
+      .tab:hover {
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .tab.active {
+        background: linear-gradient(135deg, #007aff 0%, #0051d6 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .endpoint-group {
+        margin-bottom: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(44, 44, 46, 0.4);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .endpoint-group h3 {
+        background: rgba(58, 58, 60, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 20px 24px;
+        margin: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 1.1em;
+      }
+
+      .endpoint {
+        padding: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: background-color 0.2s ease;
+      }
+
+      .endpoint:last-child {
+        border-bottom: none;
+      }
+
+      .endpoint:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .endpoint-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .method {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        color: white;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .method.get {
+        background: linear-gradient(135deg, #34c759 0%, #30d158 100%);
+      }
+      .method.post {
+        background: linear-gradient(135deg, #007aff 0%, #0051d6 100%);
+      }
+      .method.put {
+        background: linear-gradient(135deg, #ff9f0a 0%, #ff8c00 100%);
+      }
+      .method.delete {
+        background: linear-gradient(135deg, #ff3b30 0%, #d70015 100%);
+      }
+      .method.head {
+        background: linear-gradient(135deg, #8e8e93 0%, #636366 100%);
+      }
+
+      .endpoint-path {
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+          "Courier New", monospace;
+        font-weight: 500;
+        color: #ffffff;
+        font-size: 15px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        font-size: 14px;
+        background: rgba(58, 58, 60, 0.6);
+        color: #ffffff;
+        font-family: inherit;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #007aff;
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        background: rgba(58, 58, 60, 0.8);
+      }
+
+      .form-group textarea {
+        min-height: 120px;
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+          "Courier New", monospace;
+        resize: vertical;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #007aff 0%, #0051d6 100%);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: inherit;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn:disabled {
+        background: rgba(142, 142, 147, 0.6);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .refresh-btn {
+        background: linear-gradient(135deg, #007aff, #34c759);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        margin-top: 15px;
+        box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+      }
+
+      .refresh-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 122, 255, 0.4);
+      }
+
+      .refresh-btn:active {
+        transform: translateY(0px);
+      }
+
+      .response-area {
+        margin-top: 24px;
+        padding: 24px;
+        background: rgba(28, 28, 30, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      .response-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .response-header strong {
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+          "Courier New", monospace;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .status-code {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .status-success {
+        background: rgba(52, 199, 89, 0.2);
+        color: #34c759;
+        border: 1px solid rgba(52, 199, 89, 0.3);
+      }
+      .status-error {
+        background: rgba(255, 59, 48, 0.2);
+        color: #ff3b30;
+        border: 1px solid rgba(255, 59, 48, 0.3);
+      }
+      .status-info {
+        background: rgba(0, 122, 255, 0.2);
+        color: #007aff;
+        border: 1px solid rgba(0, 122, 255, 0.3);
+      }
+
+      .response-body {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 20px;
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+          "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .response-body::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .response-body::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+      }
+
+      .response-body::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+      }
+
+      .response-body::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .json-key {
+        color: #ff9f0a;
+      }
+      .json-string {
+        color: #34c759;
+      }
+      .json-number {
+        color: #007aff;
+      }
+      .json-boolean {
+        color: #af52de;
+      }
+      .json-null {
+        color: #ff3b30;
+      }
+
+      .file-drop-zone {
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(58, 58, 60, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .file-drop-zone:hover,
+      .file-drop-zone.dragover {
+        border-color: #007aff;
+        background: rgba(0, 122, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 122, 255, 0.2);
+      }
+
+      .file-info {
+        background: rgba(0, 122, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 12px;
+        font-size: 14px;
+        border: 1px solid rgba(0, 122, 255, 0.2);
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .binary-preview {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 16px;
+        border-radius: 8px;
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+          "Courier New", monospace;
+        font-size: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin-left: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-top: 2px solid #007aff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        color: #ff3b30;
+        font-size: 14px;
+        margin-top: 8px;
+        font-weight: 500;
+      }
+
+      .success-message {
+        color: #34c759;
+        font-size: 14px;
+        margin-top: 8px;
+        font-weight: 500;
+      }
+
+      /* Checkbox styling */
+      input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        background: rgba(58, 58, 60, 0.6);
+        position: relative;
+        cursor: pointer;
+        margin-right: 8px;
+        transition: all 0.2s ease;
+      }
+
+      input[type="checkbox"]:checked {
+        background: linear-gradient(135deg, #007aff 0%, #0051d6 100%);
+        border-color: #007aff;
+      }
+
+      input[type="checkbox"]:checked::after {
+        content: "✓";
+        position: absolute;
+        top: -2px;
+        left: 2px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      /* Animation enhancements */
+      .endpoint {
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          border-radius: 16px;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .header {
+          padding: 30px 20px;
+        }
+
+        .header h1 {
+          font-size: 2.2em;
+        }
+
+        .tabs {
+          flex-direction: column;
+        }
+
+        .tab {
+          padding: 12px 16px;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎯 TAMS API Testing Interface</h1>
+        <p>
+          Interactive testing tool for Time-addressable Media Store API
+          endpoints
+        </p>
+        <button onclick="refreshUUIDs()" class="refresh-btn">
+          🔄 Generate New UUIDs
+        </button>
+      </div>
+
+      <div class="content">
+        <!-- Authentication Section -->
+        <div class="auth-section">
+          <h3>🔐 Authentication</h3>
+          <div class="auth-controls">
+            <div class="form-group" style="margin: 0">
+              <label>
+                <input type="checkbox" id="useAuth" /> Enable Authentication
+              </label>
+            </div>
+            <div class="form-group" style="margin: 0; min-width: 150px">
+              <select id="authType">
+                <option value="bearer">Bearer Token</option>
+                <option value="basic">Basic Auth</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0; flex: 1">
+              <input
+                type="text"
+                id="authToken"
+                placeholder="Token or username:password"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('core')">Core</button>
+          <button class="tab" onclick="showTab('sources')">Sources</button>
+          <button class="tab" onclick="showTab('flows')">Flows</button>
+          <button class="tab" onclick="showTab('segments')">Segments</button>
+          <button class="tab" onclick="showTab('storage')">Storage</button>
+          <button class="tab" onclick="showTab('media')">Media</button>
+          <button class="tab" onclick="showTab('webhooks')">Webhooks</button>
+          <button class="tab" onclick="showTab('deletions')">Deletions</button>
+        </div>
+
+        <!-- Core Endpoints Tab -->
+        <div id="core" class="tab-content active">
+          <div class="endpoint-group">
+            <h3>📋 Core API Endpoints</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/</span>
+              </div>
+              <button class="btn" onclick="makeRequest('GET', '/')">
+                Get API Info
+              </button>
+              <div
+                id="response-root"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/service</span>
+              </div>
+              <button class="btn" onclick="makeRequest('GET', '/service')">
+                Get Service Info
+              </button>
+              <div
+                id="response-service"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sources Tab -->
+        <div id="sources" class="tab-content">
+          <div class="endpoint-group">
+            <h3>📁 Sources Management</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/sources</span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Limit</label>
+                  <input
+                    type="number"
+                    id="sources-limit"
+                    value="50"
+                    min="1"
+                    max="1000"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Offset</label>
+                  <input type="number" id="sources-offset" value="0" min="0" />
+                </div>
+              </div>
+              <button class="btn" onclick="listSources()">List Sources</button>
+              <div
+                id="response-sources-list"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/sources</span>
+              </div>
+              <div class="form-group">
+                <label>Source Data (JSON)</label>
+                <textarea
+                  id="source-create-data"
+                  placeholder='{"id": "test-source", "format": "video", "tags": {}}'
+                ></textarea>
+              </div>
+              <button class="btn" onclick="createSource()">
+                Create Source
+              </button>
+              <div
+                id="response-source-create"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/sources/{sourceId}</span>
+              </div>
+              <div class="form-group">
+                <label>Source ID</label>
+                <input type="text" id="source-id" placeholder="source-uuid" />
+              </div>
+              <button class="btn" onclick="getSource()">Get Source</button>
+              <div
+                id="response-source-get"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method put">PUT</span>
+                <span class="endpoint-path">/sources/{sourceId}</span>
+              </div>
+              <div class="form-group">
+                <label>Source ID</label>
+                <input
+                  type="text"
+                  id="source-update-id"
+                  placeholder="source-uuid"
+                />
+              </div>
+              <div class="form-group">
+                <label>Updated Source Data (JSON)</label>
+                <textarea
+                  id="source-update-data"
+                  placeholder='{"format": "audio", "tags": {"updated": true}}'
+                ></textarea>
+              </div>
+              <button class="btn" onclick="updateSource()">
+                Update Source
+              </button>
+              <div
+                id="response-source-update"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method delete">DELETE</span>
+                <span class="endpoint-path">/sources/{sourceId}</span>
+              </div>
+              <div class="form-group">
+                <label>Source ID</label>
+                <input
+                  type="text"
+                  id="source-delete-id"
+                  placeholder="source-uuid"
+                />
+              </div>
+              <button class="btn" onclick="deleteSource()">
+                Delete Source
+              </button>
+              <div
+                id="response-source-delete"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flows Tab -->
+        <div id="flows" class="tab-content">
+          <div class="endpoint-group">
+            <h3>🌊 Flows Management</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/flows</span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Limit</label>
+                  <input
+                    type="number"
+                    id="flows-limit"
+                    value="50"
+                    min="1"
+                    max="1000"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Offset</label>
+                  <input type="number" id="flows-offset" value="0" min="0" />
+                </div>
+              </div>
+              <button class="btn" onclick="listFlows()">List Flows</button>
+              <div
+                id="response-flows-list"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/flows</span>
+              </div>
+              <div class="form-group">
+                <label>Flow Data (JSON)</label>
+                <textarea
+                  id="flow-create-data"
+                  placeholder='{"source_id": "source-uuid", "timerange": {"start": "1609459200:000000000", "end": "1609459260:000000000"}}'
+                ></textarea>
+              </div>
+              <div class="form-row">
+                <button class="btn" onclick="createFlow()">Create Flow</button>
+                <button
+                  class="btn"
+                  onclick="useExistingSourceForFlow()"
+                  style="background: linear-gradient(135deg, #34c759, #007aff)"
+                >
+                  🔗 Use Existing Source
+                </button>
+              </div>
+              <div
+                id="response-flow-create"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/flows/{flowId}</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input type="text" id="flow-id" placeholder="flow-uuid" />
+              </div>
+              <button class="btn" onclick="getFlow()">Get Flow</button>
+              <div
+                id="response-flow-get"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method put">PUT</span>
+                <span class="endpoint-path">/flows/{flowId}</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input
+                  type="text"
+                  id="flow-update-id"
+                  placeholder="flow-uuid"
+                />
+              </div>
+              <div class="form-group">
+                <label>Updated Flow Data (JSON)</label>
+                <textarea
+                  id="flow-update-data"
+                  placeholder='{"tags": {"updated": true}}'
+                ></textarea>
+              </div>
+              <button class="btn" onclick="updateFlow()">Update Flow</button>
+              <div
+                id="response-flow-update"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method delete">DELETE</span>
+                <span class="endpoint-path">/flows/{flowId}</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input
+                  type="text"
+                  id="flow-delete-id"
+                  placeholder="flow-uuid"
+                />
+              </div>
+              <button class="btn" onclick="deleteFlow()">Delete Flow</button>
+              <div
+                id="response-flow-delete"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segments Tab -->
+        <div id="segments" class="tab-content">
+          <div class="endpoint-group">
+            <h3>📐 Flow Segments</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/flows/{flowId}/segments</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input
+                  type="text"
+                  id="segments-flow-id"
+                  placeholder="flow-uuid"
+                />
+              </div>
+              <button class="btn" onclick="listSegments()">
+                List Segments
+              </button>
+              <div
+                id="response-segments-list"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/flows/{flowId}/segments</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input
+                  type="text"
+                  id="segments-add-flow-id"
+                  placeholder="flow-uuid"
+                />
+              </div>
+              <div class="form-group">
+                <label>Segments Data (JSON)</label>
+                <textarea
+                  id="segments-add-data"
+                  placeholder='[{"timerange": {"start": "1609459200:000000000", "end": "1609459230:000000000"}, "media_object_id": "object-uuid"}]'
+                ></textarea>
+              </div>
+              <button class="btn" onclick="addSegments()">Add Segments</button>
+              <div
+                id="response-segments-add"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method delete">DELETE</span>
+                <span class="endpoint-path">/flows/{flowId}/segments</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input
+                  type="text"
+                  id="segments-delete-flow-id"
+                  placeholder="flow-uuid"
+                />
+              </div>
+              <div class="form-group">
+                <label>Timerange (JSON)</label>
+                <textarea
+                  id="segments-delete-timerange"
+                  placeholder='{"start": "1609459200:000000000", "end": "1609459260:000000000"}'
+                ></textarea>
+              </div>
+              <button class="btn" onclick="deleteSegments()">
+                Delete Segments
+              </button>
+              <div
+                id="response-segments-delete"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Storage Tab -->
+        <div id="storage" class="tab-content">
+          <div class="endpoint-group">
+            <h3>💾 Storage Management</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/flows/{flowId}/storage</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input
+                  type="text"
+                  id="storage-flow-id"
+                  placeholder="flow-uuid"
+                />
+              </div>
+              <div class="form-group">
+                <label>Content Type</label>
+                <input
+                  type="text"
+                  id="storage-content-type"
+                  placeholder="video/mp4"
+                  value="application/octet-stream"
+                />
+              </div>
+              <button class="btn" onclick="getStorageUrls()">
+                Get Storage URLs
+              </button>
+              <div
+                id="response-storage"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">File Upload</span>
+              </div>
+              <div class="form-group">
+                <label>Upload URL (from storage endpoint)</label>
+                <input
+                  type="text"
+                  id="upload-url"
+                  placeholder="http://localhost:8080/upload/object-id"
+                />
+              </div>
+              <div class="form-group">
+                <label>File to Upload</label>
+                <div
+                  class="file-drop-zone"
+                  id="file-drop-zone"
+                  onclick="document.getElementById('file-input').click()"
+                >
+                  <input
+                    type="file"
+                    id="file-input"
+                    style="display: none"
+                    onchange="handleFileSelect(this.files[0])"
+                  />
+                  <p>📁 Click to select file or drag & drop</p>
+                  <p style="font-size: 14px; opacity: 0.7">
+                    Supports all file types
+                  </p>
+                </div>
+                <div
+                  id="file-info"
+                  class="file-info"
+                  style="display: none"
+                ></div>
+              </div>
+              <button
+                class="btn"
+                id="upload-btn"
+                onclick="uploadFile()"
+                disabled
+              >
+                Upload File
+              </button>
+              <div
+                id="response-upload"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Media Tab -->
+        <div id="media" class="tab-content">
+          <div class="endpoint-group">
+            <h3>🎬 Media Objects</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/objects/{objectId}</span>
+              </div>
+              <div class="form-group">
+                <label>Object ID</label>
+                <input
+                  type="text"
+                  id="media-object-id"
+                  placeholder="object-uuid"
+                />
+              </div>
+              <button class="btn" onclick="getMediaObject()">
+                Get Media Object
+              </button>
+              <div
+                id="response-media-get"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method head">HEAD</span>
+                <span class="endpoint-path">/objects/{objectId}</span>
+              </div>
+              <div class="form-group">
+                <label>Object ID</label>
+                <input
+                  type="text"
+                  id="media-head-object-id"
+                  placeholder="object-uuid"
+                />
+              </div>
+              <button class="btn" onclick="checkMediaObject()">
+                Check Media Object
+              </button>
+              <div
+                id="response-media-head"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">Download Media</span>
+              </div>
+              <div class="form-group">
+                <label>Object ID</label>
+                <input
+                  type="text"
+                  id="media-download-id"
+                  placeholder="object-uuid"
+                />
+              </div>
+              <button class="btn" onclick="downloadMedia()">
+                Download Media
+              </button>
+              <div
+                id="response-media-download"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Webhooks Tab -->
+        <div id="webhooks" class="tab-content">
+          <div class="endpoint-group">
+            <h3>🔗 Webhooks</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/service/webhooks</span>
+              </div>
+              <button class="btn" onclick="listWebhooks()">
+                List Webhooks
+              </button>
+              <div
+                id="response-webhooks-list"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/service/webhooks</span>
+              </div>
+              <div class="form-group">
+                <label>Webhook Data (JSON)</label>
+                <textarea
+                  id="webhook-create-data"
+                  placeholder='{"url": "https://example.com/webhook", "events": ["*"], "api_key_name": "X-API-Key", "api_key_value": "secret"}'
+                ></textarea>
+              </div>
+              <button class="btn" onclick="createWebhook()">
+                Create Webhook
+              </button>
+              <div
+                id="response-webhook-create"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method delete">DELETE</span>
+                <span class="endpoint-path">/service/webhooks/{url}</span>
+              </div>
+              <div class="form-group">
+                <label>Webhook URL</label>
+                <input
+                  type="text"
+                  id="webhook-delete-url"
+                  placeholder="https://example.com/webhook"
+                />
+              </div>
+              <button class="btn" onclick="deleteWebhook()">
+                Delete Webhook
+              </button>
+              <div
+                id="response-webhook-delete"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deletions Tab -->
+        <div id="deletions" class="tab-content">
+          <div class="endpoint-group">
+            <h3>🗑️ Flow Deletion Requests</h3>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/flow-delete-requests</span>
+              </div>
+              <button class="btn" onclick="listDeletionRequests()">
+                List Deletion Requests
+              </button>
+              <div
+                id="response-deletions-list"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/flow-delete-requests</span>
+              </div>
+              <div class="form-group">
+                <label>Flow ID</label>
+                <input
+                  type="text"
+                  id="deletion-flow-id"
+                  placeholder="flow-uuid"
+                />
+              </div>
+              <div class="form-group">
+                <label>Timerange (JSON, optional)</label>
+                <textarea
+                  id="deletion-timerange"
+                  placeholder='{"start": "1609459200:000000000", "end": "1609459260:000000000"}'
+                ></textarea>
+              </div>
+              <button class="btn" onclick="createDeletionRequest()">
+                Create Deletion Request
+              </button>
+              <div
+                id="response-deletion-create"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="endpoint">
+              <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/flow-delete-requests/{id}</span>
+              </div>
+              <div class="form-group">
+                <label>Deletion Request ID</label>
+                <input
+                  type="text"
+                  id="deletion-request-id"
+                  placeholder="request-id"
+                />
+              </div>
+              <button class="btn" onclick="getDeletionRequest()">
+                Get Deletion Request
+              </button>
+              <div
+                id="response-deletion-get"
+                class="response-area"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global variables
+      let currentTab = "core";
+
+      // Tab management
+      function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll(".tab-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+
+        // Remove active class from all tabs
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Show selected tab content
+        document.getElementById(tabName).classList.add("active");
+
+        // Add active class to clicked tab
+        event.target.classList.add("active");
+
+        currentTab = tabName;
+      }
+
+      // Authentication helpers
+      function getAuthHeaders() {
+        const useAuth = document.getElementById("useAuth").checked;
+        if (!useAuth) return {};
+
+        const authType = document.getElementById("authType").value;
+        const authToken = document.getElementById("authToken").value;
+
+        if (!authToken) return {};
+
+        if (authType === "bearer") {
+          return { Authorization: `Bearer ${authToken}` };
+        } else if (authType === "basic") {
+          const encoded = btoa(authToken);
+          return { Authorization: `Basic ${encoded}` };
+        }
+
+        return {};
+      }
+
+      // Generic request function
+      async function makeRequest(method, url, body = null, responseId = null) {
+        const actualResponseId =
+          responseId || `response-${url.replace(/[^a-zA-Z0-9]/g, "-")}`;
+        const responseArea = document.getElementById(actualResponseId);
+
+        if (responseArea) {
+          responseArea.style.display = "block";
+          responseArea.innerHTML = `
+                    <div class="response-header">
+                        <strong>Loading...</strong>
+                        <span class="spinner"></span>
+                    </div>
+                `;
+        }
+
+        try {
+          const headers = {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+          };
+
+          const options = {
+            method: method,
+            headers: headers,
+          };
+
+          if (body) {
+            options.body =
+              typeof body === "string" ? body : JSON.stringify(body);
+          }
+
+          const response = await fetch(url, options);
+          const responseText = await response.text();
+
+          let responseBody;
+          let isJson = false;
+
+          try {
+            responseBody = JSON.parse(responseText);
+            isJson = true;
+          } catch {
+            responseBody = responseText;
+          }
+
+          const statusClass = response.ok ? "status-success" : "status-error";
+
+          if (responseArea) {
+            responseArea.innerHTML = `
+                        <div class="response-header">
+                            <strong>${method} ${url}</strong>
+                            <span class="status-code ${statusClass}">${
+              response.status
+            } ${response.statusText}</span>
+                        </div>
+                        <div class="response-body">${
+                          isJson
+                            ? formatJson(responseBody)
+                            : escapeHtml(responseBody)
+                        }</div>
+                    `;
+          }
+
+          return { response, data: responseBody };
+        } catch (error) {
+          if (responseArea) {
+            responseArea.innerHTML = `
+                        <div class="response-header">
+                            <strong>${method} ${url}</strong>
+                            <span class="status-code status-error">Error</span>
+                        </div>
+                        <div class="response-body">Error: ${escapeHtml(
+                          error.message
+                        )}</div>
+                    `;
+          }
+          throw error;
+        }
+      }
+
+      // JSON formatting
+      function formatJson(obj) {
+        return JSON.stringify(obj, null, 2)
+          .replace(
+            /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g,
+            '<span class="json-key">$1</span>'
+          )
+          .replace(/:\s*"([^"]*)"/g, ': <span class="json-string">"$1"</span>')
+          .replace(/:\s*(\d+)/g, ': <span class="json-number">$1</span>')
+          .replace(
+            /:\s*(true|false)/g,
+            ': <span class="json-boolean">$1</span>'
+          )
+          .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+      }
+
+      // HTML escaping
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Source management functions
+      function listSources() {
+        const limit = document.getElementById("sources-limit").value;
+        const offset = document.getElementById("sources-offset").value;
+        const url = `/sources?limit=${limit}&offset=${offset}`;
+        makeRequest("GET", url, null, "response-sources-list");
+      }
+
+      function createSource() {
+        const data = document.getElementById("source-create-data").value;
+        try {
+          const sourceData = JSON.parse(data);
+          makeRequest("POST", "/sources", sourceData, "response-source-create");
+        } catch (error) {
+          document.getElementById("response-source-create").innerHTML = `
+                    <div class="response-header">
+                        <strong>JSON Parse Error</strong>
+                        <span class="status-code status-error">Error</span>
+                    </div>
+                    <div class="response-body">Invalid JSON: ${escapeHtml(
+                      error.message
+                    )}</div>
+                `;
+          document.getElementById("response-source-create").style.display =
+            "block";
+        }
+      }
+
+      function getSource() {
+        const sourceId = document.getElementById("source-id").value;
+        if (!sourceId) {
+          alert("Please enter a source ID");
+          return;
+        }
+        makeRequest("GET", `/sources/${sourceId}`, null, "response-source-get");
+      }
+
+      function updateSource() {
+        const sourceId = document.getElementById("source-update-id").value;
+        const data = document.getElementById("source-update-data").value;
+
+        if (!sourceId) {
+          alert("Please enter a source ID");
+          return;
+        }
+
+        try {
+          const sourceData = JSON.parse(data);
+          makeRequest(
+            "PUT",
+            `/sources/${sourceId}`,
+            sourceData,
+            "response-source-update"
+          );
+        } catch (error) {
+          document.getElementById("response-source-update").innerHTML = `
+                    <div class="response-header">
+                        <strong>JSON Parse Error</strong>
+                        <span class="status-code status-error">Error</span>
+                    </div>
+                    <div class="response-body">Invalid JSON: ${escapeHtml(
+                      error.message
+                    )}</div>
+                `;
+          document.getElementById("response-source-update").style.display =
+            "block";
+        }
+      }
+
+      function deleteSource() {
+        const sourceId = document.getElementById("source-delete-id").value;
+        if (!sourceId) {
+          alert("Please enter a source ID");
+          return;
+        }
+        if (confirm(`Are you sure you want to delete source ${sourceId}?`)) {
+          makeRequest(
+            "DELETE",
+            `/sources/${sourceId}`,
+            null,
+            "response-source-delete"
+          );
+        }
+      }
+
+      // UUID generation function
+      function generateUUID() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            var r = (Math.random() * 16) | 0;
+            var v = c == "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          }
+        );
+      }
+
+      // Initialize the interface
+      document.addEventListener("DOMContentLoaded", function () {
+        // Set default source creation data
+        document.getElementById("source-create-data").value = JSON.stringify(
+          {
+            id: generateUUID(),
+            format: "urn:x-nmos:format:video",
+            tags: {
+              created_by: "test_interface",
+              timestamp: new Date().toISOString(),
+            },
+          },
+          null,
+          2
+        );
+
+        // Set default source update data
+        document.getElementById("source-update-data").value = JSON.stringify(
+          {
+            format: "urn:x-nmos:format:audio",
+            tags: {
+              updated_by: "test_interface",
+              updated_at: new Date().toISOString(),
+            },
+          },
+          null,
+          2
+        );
+
+        // Set default flow creation data
+        setupFlowDefaults();
+
+        // Set default webhook data
+        setupWebhookDefaults();
+
+        // Setup file upload handlers
+        setupFileUpload();
+      });
+
+      // Flow management functions
+      function setupFlowDefaults() {
+        if (document.getElementById("flow-create-data")) {
+          document.getElementById("flow-create-data").value = JSON.stringify(
+            {
+              source_id: null,
+              format: "urn:x-nmos:format:video",
+              timerange: {
+                start: "1609459200:000000000",
+                end: "1609459260:000000000",
+              },
+              tags: {
+                created_by: "test_interface",
+                note: "source_id is null - click 'Use Existing Source' to link to a source",
+              },
+            },
+            null,
+            2
+          );
+        }
+
+        if (document.getElementById("flow-update-data")) {
+          document.getElementById("flow-update-data").value = JSON.stringify(
+            {
+              tags: {
+                updated_by: "test_interface",
+                updated_at: new Date().toISOString(),
+              },
+            },
+            null,
+            2
+          );
+        }
+
+        if (document.getElementById("segments-add-data")) {
+          document.getElementById("segments-add-data").value = JSON.stringify(
+            {
+              object_id: generateUUID(),
+              timerange: {
+                start: "1609459200:000000000",
+                end: "1609459230:000000000",
+              },
+              ts_offset: null,
+              sample_offset: null,
+              sample_count: null,
+              key_frame_count: null,
+            },
+            null,
+            2
+          );
+        }
+
+        if (document.getElementById("segments-delete-timerange")) {
+          document.getElementById("segments-delete-timerange").value =
+            JSON.stringify(
+              {
+                start: "1609459200:000000000",
+                end: "1609459260:000000000",
+              },
+              null,
+              2
+            );
+        }
+      }
+
+      function listFlows() {
+        const limit = document.getElementById("flows-limit").value;
+        const offset = document.getElementById("flows-offset").value;
+        const url = `/flows?limit=${limit}&offset=${offset}`;
+        makeRequest("GET", url, null, "response-flows-list");
+      }
+
+      function createFlow() {
+        const data = document.getElementById("flow-create-data").value;
+        try {
+          const flowData = JSON.parse(data);
+          makeRequest("POST", "/flows", flowData, "response-flow-create");
+        } catch (error) {
+          showJsonError("response-flow-create", error);
+        }
+      }
+
+      function getFlow() {
+        const flowId = document.getElementById("flow-id").value;
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+        makeRequest("GET", `/flows/${flowId}`, null, "response-flow-get");
+      }
+
+      function updateFlow() {
+        const flowId = document.getElementById("flow-update-id").value;
+        const data = document.getElementById("flow-update-data").value;
+
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+
+        try {
+          const flowData = JSON.parse(data);
+          makeRequest(
+            "PUT",
+            `/flows/${flowId}`,
+            flowData,
+            "response-flow-update"
+          );
+        } catch (error) {
+          showJsonError("response-flow-update", error);
+        }
+      }
+
+      function deleteFlow() {
+        const flowId = document.getElementById("flow-delete-id").value;
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+        if (confirm(`Are you sure you want to delete flow ${flowId}?`)) {
+          makeRequest(
+            "DELETE",
+            `/flows/${flowId}`,
+            null,
+            "response-flow-delete"
+          );
+        }
+      }
+
+      // Segments management functions
+      function listSegments() {
+        const flowId = document.getElementById("segments-flow-id").value;
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+        makeRequest(
+          "GET",
+          `/flows/${flowId}/segments`,
+          null,
+          "response-segments-list"
+        );
+      }
+
+      function addSegments() {
+        const flowId = document.getElementById("segments-add-flow-id").value;
+        const data = document.getElementById("segments-add-data").value;
+
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+
+        try {
+          const segmentsData = JSON.parse(data);
+          makeRequest(
+            "POST",
+            `/flows/${flowId}/segments`,
+            segmentsData,
+            "response-segments-add"
+          );
+        } catch (error) {
+          showJsonError("response-segments-add", error);
+        }
+      }
+
+      function deleteSegments() {
+        const flowId = document.getElementById("segments-delete-flow-id").value;
+        const timerangeData = document.getElementById(
+          "segments-delete-timerange"
+        ).value;
+
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+
+        try {
+          const timerange = JSON.parse(timerangeData);
+          const url = `/flows/${flowId}/segments?start=${timerange.start}&end=${timerange.end}`;
+          makeRequest("DELETE", url, null, "response-segments-delete");
+        } catch (error) {
+          showJsonError("response-segments-delete", error);
+        }
+      }
+
+      // Storage management functions
+      function getStorageUrls() {
+        const flowId = document.getElementById("storage-flow-id").value;
+        const contentType = document.getElementById(
+          "storage-content-type"
+        ).value;
+
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+
+        const url = `/flows/${flowId}/storage${
+          contentType ? `?content_type=${encodeURIComponent(contentType)}` : ""
+        }`;
+        makeRequest("GET", url, null, "response-storage");
+      }
+
+      // File upload functionality
+      let selectedFile = null;
+
+      function setupFileUpload() {
+        const dropZone = document.getElementById("file-drop-zone");
+        const fileInput = document.getElementById("file-input");
+
+        // Drag and drop handlers
+        dropZone.addEventListener("dragover", function (e) {
+          e.preventDefault();
+          dropZone.classList.add("dragover");
+        });
+
+        dropZone.addEventListener("dragleave", function (e) {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+        });
+
+        dropZone.addEventListener("drop", function (e) {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            handleFileSelect(files[0]);
+          }
+        });
+      }
+
+      function handleFileSelect(file) {
+        selectedFile = file;
+        const fileInfo = document.getElementById("file-info");
+        const uploadBtn = document.getElementById("upload-btn");
+
+        fileInfo.innerHTML = `
+          <strong>📄 ${file.name}</strong><br>
+          Size: ${formatFileSize(file.size)}<br>
+          Type: ${file.type || "Unknown"}<br>
+          Last Modified: ${new Date(file.lastModified).toLocaleString()}
+        `;
+        fileInfo.style.display = "block";
+        uploadBtn.disabled = false;
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+      }
+
+      async function uploadFile() {
+        const uploadUrl = document.getElementById("upload-url").value;
+
+        if (!selectedFile) {
+          alert("Please select a file first");
+          return;
+        }
+
+        if (!uploadUrl) {
+          alert(
+            "Please enter an upload URL (get it from storage endpoint first)"
+          );
+          return;
+        }
+
+        const responseArea = document.getElementById("response-upload");
+        responseArea.style.display = "block";
+        responseArea.innerHTML = `
+          <div class="response-header">
+            <strong>Uploading...</strong>
+            <span class="spinner"></span>
+          </div>
+        `;
+
+        try {
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+
+          const headers = getAuthHeaders();
+
+          const response = await fetch(uploadUrl, {
+            method: "POST",
+            body: formData,
+            headers: headers,
+          });
+
+          const responseText = await response.text();
+          let responseBody;
+          let isJson = false;
+
+          try {
+            responseBody = JSON.parse(responseText);
+            isJson = true;
+          } catch {
+            responseBody = responseText;
+          }
+
+          const statusClass = response.ok ? "status-success" : "status-error";
+
+          responseArea.innerHTML = `
+            <div class="response-header">
+              <strong>POST ${uploadUrl}</strong>
+              <span class="status-code ${statusClass}">${response.status} ${
+            response.statusText
+          }</span>
+            </div>
+            <div class="response-body">${
+              isJson ? formatJson(responseBody) : escapeHtml(responseBody)
+            }</div>
+          `;
+        } catch (error) {
+          responseArea.innerHTML = `
+            <div class="response-header">
+              <strong>Upload Error</strong>
+              <span class="status-code status-error">Error</span>
+            </div>
+            <div class="response-body">Error: ${escapeHtml(error.message)}</div>
+          `;
+        }
+      }
+
+      // Media object functions
+      function getMediaObject() {
+        const objectId = document.getElementById("media-object-id").value;
+        if (!objectId) {
+          alert("Please enter an object ID");
+          return;
+        }
+        makeRequest("GET", `/objects/${objectId}`, null, "response-media-get");
+      }
+
+      function checkMediaObject() {
+        const objectId = document.getElementById("media-head-object-id").value;
+        if (!objectId) {
+          alert("Please enter an object ID");
+          return;
+        }
+        makeRequest(
+          "HEAD",
+          `/objects/${objectId}`,
+          null,
+          "response-media-head"
+        );
+      }
+
+      async function downloadMedia() {
+        const objectId = document.getElementById("media-download-id").value;
+        if (!objectId) {
+          alert("Please enter an object ID");
+          return;
+        }
+
+        const responseArea = document.getElementById("response-media-download");
+        responseArea.style.display = "block";
+        responseArea.innerHTML = `
+          <div class="response-header">
+            <strong>Downloading...</strong>
+            <span class="spinner"></span>
+          </div>
+        `;
+
+        try {
+          const headers = getAuthHeaders();
+          const response = await fetch(`/objects/${objectId}`, {
+            method: "GET",
+            headers: headers,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          const contentType =
+            response.headers.get("content-type") || "application/octet-stream";
+
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = objectId;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          // Show binary preview
+          const arrayBuffer = await blob.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          const preview = Array.from(uint8Array.slice(0, 256))
+            .map((byte) => byte.toString(16).padStart(2, "0"))
+            .join(" ");
+
+          responseArea.innerHTML = `
+            <div class="response-header">
+              <strong>Download Complete</strong>
+              <span class="status-code status-success">200 OK</span>
+            </div>
+            <div class="response-body">
+              <strong>File downloaded successfully!</strong><br>
+              Content-Type: ${contentType}<br>
+              Size: ${formatFileSize(blob.size)}<br><br>
+              <strong>Binary Preview (first 256 bytes):</strong>
+              <div class="binary-preview">${preview}</div>
+            </div>
+          `;
+        } catch (error) {
+          responseArea.innerHTML = `
+            <div class="response-header">
+              <strong>Download Error</strong>
+              <span class="status-code status-error">Error</span>
+            </div>
+            <div class="response-body">Error: ${escapeHtml(error.message)}</div>
+          `;
+        }
+      }
+
+      // Webhook management functions
+      function setupWebhookDefaults() {
+        if (document.getElementById("webhook-create-data")) {
+          document.getElementById("webhook-create-data").value = JSON.stringify(
+            {
+              url: "https://httpbin.org/post",
+              events: ["*"],
+              api_key_name: "X-API-Key",
+              api_key_value: "test-secret-key",
+            },
+            null,
+            2
+          );
+        }
+      }
+
+      function listWebhooks() {
+        makeRequest("GET", "/service/webhooks", null, "response-webhooks-list");
+      }
+
+      function createWebhook() {
+        const data = document.getElementById("webhook-create-data").value;
+        try {
+          const webhookData = JSON.parse(data);
+          makeRequest(
+            "POST",
+            "/service/webhooks",
+            webhookData,
+            "response-webhook-create"
+          );
+        } catch (error) {
+          showJsonError("response-webhook-create", error);
+        }
+      }
+
+      function deleteWebhook() {
+        const webhookUrl = document.getElementById("webhook-delete-url").value;
+        if (!webhookUrl) {
+          alert("Please enter a webhook URL");
+          return;
+        }
+        if (confirm(`Are you sure you want to delete webhook ${webhookUrl}?`)) {
+          makeRequest(
+            "DELETE",
+            `/service/webhooks/${encodeURIComponent(webhookUrl)}`,
+            null,
+            "response-webhook-delete"
+          );
+        }
+      }
+
+      // Deletion request functions
+      function listDeletionRequests() {
+        makeRequest(
+          "GET",
+          "/flow-delete-requests",
+          null,
+          "response-deletions-list"
+        );
+      }
+
+      function createDeletionRequest() {
+        const flowId = document.getElementById("deletion-flow-id").value;
+        const timerangeData =
+          document.getElementById("deletion-timerange").value;
+
+        if (!flowId) {
+          alert("Please enter a flow ID");
+          return;
+        }
+
+        const requestData = { flow_id: flowId };
+
+        if (timerangeData.trim()) {
+          try {
+            requestData.timerange = JSON.parse(timerangeData);
+          } catch (error) {
+            showJsonError("response-deletion-create", error);
+            return;
+          }
+        }
+
+        makeRequest(
+          "POST",
+          "/flow-delete-requests",
+          requestData,
+          "response-deletion-create"
+        );
+      }
+
+      function getDeletionRequest() {
+        const requestId = document.getElementById("deletion-request-id").value;
+        if (!requestId) {
+          alert("Please enter a deletion request ID");
+          return;
+        }
+        makeRequest(
+          "GET",
+          `/flow-delete-requests/${requestId}`,
+          null,
+          "response-deletion-get"
+        );
+      }
+
+      // Utility functions
+      function showJsonError(responseId, error) {
+        const responseArea = document.getElementById(responseId);
+        responseArea.innerHTML = `
+          <div class="response-header">
+            <strong>JSON Parse Error</strong>
+            <span class="status-code status-error">Error</span>
+          </div>
+          <div class="response-body">Invalid JSON: ${escapeHtml(
+            error.message
+          )}</div>
+        `;
+        responseArea.style.display = "block";
+      }
+
+      // Function to refresh all UUIDs in default data
+      function refreshUUIDs() {
+        // Refresh source creation data
+        if (document.getElementById("source-create-data")) {
+          const sourceData = {
+            id: generateUUID(),
+            format: "urn:x-nmos:format:video",
+            tags: {
+              created_by: "test_interface",
+              timestamp: new Date().toISOString(),
+            },
+          };
+          document.getElementById("source-create-data").value = JSON.stringify(
+            sourceData,
+            null,
+            2
+          );
+        }
+
+        // Refresh flow creation data
+        if (document.getElementById("flow-create-data")) {
+          const flowData = {
+            source_id: null,
+            format: "urn:x-nmos:format:video",
+            timerange: {
+              start: "1609459200:000000000",
+              end: "1609459260:000000000",
+            },
+            tags: {
+              created_by: "test_interface",
+              note: "source_id is null - click 'Use Existing Source' to link to a source",
+            },
+          };
+          document.getElementById("flow-create-data").value = JSON.stringify(
+            flowData,
+            null,
+            2
+          );
+        }
+
+        // Refresh segments data
+        if (document.getElementById("segments-add-data")) {
+          const segmentsData = {
+            object_id: generateUUID(),
+            timerange: {
+              start: "1609459200:000000000",
+              end: "1609459230:000000000",
+            },
+            ts_offset: null,
+            sample_offset: null,
+            sample_count: null,
+            key_frame_count: null,
+          };
+          document.getElementById("segments-add-data").value = JSON.stringify(
+            segmentsData,
+            null,
+            2
+          );
+        }
+
+        alert("All UUIDs have been refreshed!");
+      }
+
+      // Function to populate flow creation with an existing source
+      async function useExistingSourceForFlow() {
+        try {
+          const response = await fetch("/sources");
+          const data = await response.json();
+
+          if (data.sources && data.sources.length > 0) {
+            // Use the first available source
+            const source = data.sources[0];
+            const flowData = {
+              source_id: source.id,
+              format: source.format, // Match the source format
+              timerange: {
+                start: "1609459200:000000000",
+                end: "1609459260:000000000",
+              },
+              tags: {
+                created_by: "test_interface",
+                linked_to_source: source.id,
+                source_format: source.format,
+              },
+            };
+
+            document.getElementById("flow-create-data").value = JSON.stringify(
+              flowData,
+              null,
+              2
+            );
+            alert(`Flow data updated to use existing source: ${source.id}`);
+          } else {
+            alert("No sources available. Please create a source first.");
+          }
+        } catch (error) {
+          alert("Error fetching sources: " + error.message);
+        }
+      }
+    </script>
+  </body>
+</html>

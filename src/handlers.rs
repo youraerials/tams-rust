@@ -83,20 +83,22 @@ pub async fn get_source(
 
 pub async fn create_source(
     State(state): State<AppState>,
-    Json(payload): Json<Source>,
+    Json(payload): Json<CreateSourceRequest>,
 ) -> Result<Json<Source>, TamsError> {
-    state.database.create_source(&payload).await?;
-    Ok(Json(payload))
+    let source = payload.into_source();
+    state.database.create_source(&source).await?;
+    Ok(Json(source))
 }
 
 pub async fn update_source(
     Path(id): Path<Uuid>,
     State(state): State<AppState>,
-    Json(mut payload): Json<Source>,
+    Json(payload): Json<UpdateSourceRequest>,
 ) -> Result<Json<Source>, TamsError> {
-    payload.id = id;
-    state.database.update_source(&payload).await?;
-    Ok(Json(payload))
+    let existing_source = state.database.get_source_required(&id).await?;
+    let updated_source = payload.apply_to_source(existing_source);
+    state.database.update_source(&updated_source).await?;
+    Ok(Json(updated_source))
 }
 
 pub async fn delete_source(
@@ -136,20 +138,22 @@ pub async fn get_flow(
 
 pub async fn create_flow(
     State(state): State<AppState>,
-    Json(payload): Json<Flow>,
+    Json(payload): Json<CreateFlowRequest>,
 ) -> Result<Json<Flow>, TamsError> {
-    state.database.create_flow(&payload).await?;
-    Ok(Json(payload))
+    let flow = payload.into_flow();
+    state.database.create_flow(&flow).await?;
+    Ok(Json(flow))
 }
 
 pub async fn update_flow(
     Path(id): Path<Uuid>,
     State(state): State<AppState>,
-    Json(mut payload): Json<Flow>,
+    Json(payload): Json<UpdateFlowRequest>,
 ) -> Result<Json<Flow>, TamsError> {
-    payload.id = id;
-    state.database.update_flow(&payload).await?;
-    Ok(Json(payload))
+    let existing_flow = state.database.get_flow_required(&id).await?;
+    let updated_flow = payload.apply_to_flow(existing_flow);
+    state.database.update_flow(&updated_flow).await?;
+    Ok(Json(updated_flow))
 }
 
 pub async fn delete_flow(
@@ -191,11 +195,11 @@ pub async fn list_flow_segments(
 pub async fn add_flow_segment(
     Path(flow_id): Path<Uuid>,
     State(state): State<AppState>,
-    Json(mut payload): Json<FlowSegment>,
+    Json(payload): Json<CreateSegmentRequest>,
 ) -> Result<Json<FlowSegment>, TamsError> {
-    payload.flow_id = flow_id;
-    state.database.add_flow_segment(&payload).await?;
-    Ok(Json(payload))
+    let segment = payload.into_segment(flow_id);
+    state.database.add_flow_segment(&segment).await?;
+    Ok(Json(segment))
 }
 
 pub async fn delete_flow_segments(
